@@ -1,0 +1,46 @@
+name: Create kubernetes cluster
+on : [workflow_call]
+jobs:
+  apply-terraform-infrastructure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install terraform
+        id: install-terraform
+        working-directory: ./Terraform
+        run: wget -O terraform.zip https://releases.hashicorp.com/terraform/1.14.3/terraform_1.14.3_linux_amd64.zip && unzip terraform.zip && chmod +x terraform && sudo mv terraform /usr/local/bin
+      - name: Install KinD
+        id: install-kind
+        working-directory: ./Terraform
+        run: curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
+      - name: Apply Terraform 
+        working-directory: ./Terraform
+        run: terraform init && terraform apply -auto-approve -var="branch=${GITHUB_REF##*/}"
+      - name: Check kubectl version
+        id: check-kubectl-version
+        run: kubectl version
+      - name: Create ArgoCd namespace
+        id: create-argocd-namespace
+        working-directory: ./Manifest/argoCD
+        run: kubectl create namespace argocd
+      - name: Install ArgoCd
+        id: install-argocd
+        working-directory: ./Manifest/argoCD
+        run: kubectl apply -n argocd --server-side --force-conflicts -f ./install.yaml
+      - name: Add sealed-secret controller application resource to cluster
+        id: add-sealed-secret
+        working-directory: ./Manifest/argoCD/sealed-secret
+        run: kubectl apply -n argocd -f ./sealed-secrets-controller.yaml
+      - name: Add blog-app application resource to cluster
+        id: add-blog-app
+        working-directory: ./Manifest/argoCD/blog-app
+        run: kubectl apply -n argocd -f ./blog-Application.yaml
+      - name: create monitoring namespace and CRDs
+        id: create-monitoring-namespace-and-CRDs
+        working-directory: ./Manifest/argoCD/monitoring
+        run: kubectl apply -n argocd -f ./prometheus-crds.yaml
+      - name: Add monitoring components
+        id: Add-monitoring-components
+        working-directory: ./Manifest/argoCD/monitoring
+        run: kubectl apply -n argocd -f ./monitoring-components.yaml

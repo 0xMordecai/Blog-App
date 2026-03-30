@@ -1,0 +1,119 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mongodb-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: StatefulSet
+    name: mongodb
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: posts-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: Deployment
+    name: posts
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: reviews-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: Deployment
+    name: reviews
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ratings-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: Deployment
+    name: ratings
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: users-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: Deployment
+    name: users
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: blog-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/1
+    kind: Deployment
+    name: frontend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
