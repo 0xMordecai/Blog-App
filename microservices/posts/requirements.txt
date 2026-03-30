@@ -1,0 +1,4 @@
+flask
+pymongo
+# newest version
+prometheus-flask-exporter
